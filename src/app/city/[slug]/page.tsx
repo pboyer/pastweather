@@ -9,13 +9,16 @@ import WeatherDetail from "@/components/WeatherDetail";
 
 export const revalidate = 21600; // Revalidate every 6 hours
 
-interface CityPageProps {
-  params: { slug: string };
-}
+// Simple params type for internal use
+type Params = {
+  slug: string;
+};
 
 export async function generateMetadata({
   params,
-}: CityPageProps): Promise<Metadata> {
+}: {
+  params: Params;
+}): Promise<Metadata> {
   const city = await getCityBySlug(params.slug);
 
   if (!city) {
@@ -37,8 +40,16 @@ export async function generateStaticParams() {
   }));
 }
 
-export default async function CityPage({ params }: CityPageProps) {
-  const cityWeather = await getCityWeatherBySlug(params.slug);
+// For Next.js 15, use a more explicit approach
+interface PageParams {
+  params: {
+    slug: string;
+  };
+}
+
+export default async function CityPage(props: PageParams) {
+  const { slug } = props.params;
+  const cityWeather = await getCityWeatherBySlug(slug);
 
   if (!cityWeather) {
     notFound();
